@@ -1,10 +1,11 @@
 import  { Container, Box, Button, FormControl, Link, InputAdornment, IconButton, InputLabel, OutlinedInput }  from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material'
 import logo from "../../shared/images/Logo.png"
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { fireAlert } from '../../shared/utils/alerts';
 import useApi from '../../shared/hooks/useApi';
 import { useNavigate } from 'react-router-dom';
+import useContexts from '../../shared/hooks/useContexts';
 
 interface State {
   email: string;
@@ -15,11 +16,20 @@ interface State {
 export const SignIn: React.FC = () => {
   const api = useApi()
   const navigate = useNavigate()
+  const contexts = useContexts()
+  const { auth, login } = contexts.auth
   const [values, setValues] = useState<State>({
     email: '',
     password: '',
     showPassword: false,
   });
+
+  useEffect(() => {
+    if (auth) navigate("/timeline");
+
+    //eslint-disable-next-line
+  }, [])
+
 
   const handleChange = (prop: keyof State) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [prop]: event.target.value });
@@ -30,7 +40,8 @@ export const SignIn: React.FC = () => {
     event.preventDefault();
 
     try {
-      await api.auth.signIn({ email, password })
+      const { data } = await api.auth.signIn({ email, password })
+      login(data)
       navigate("/");
     } catch (error: any) {
       fireAlert((error.response.data))
