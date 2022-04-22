@@ -8,15 +8,16 @@ import useApi from '../../shared/hooks/useApi';
 
 interface Term {
     number: number;
-    disciplines: Discipline[];
+    disciplines: DisciplineWithTeacher[];
     open?: boolean;
 }
 
-interface Discipline {
+interface DisciplineWithTeacher {
     name: string;
     teachers: Teacher[];
     open?: boolean;
 }
+
 
 interface Teacher {
     name: string;
@@ -28,6 +29,11 @@ interface Test {
 	category: string;
 }
 
+interface TestsByTeacher {
+	name: string;
+	disciplines: []
+	open?: boolean
+}
 export const Home: React.FC = () => {
 	const contexts = useContexts()
 	const api = useApi()
@@ -35,29 +41,45 @@ export const Home: React.FC = () => {
 	const navigate = useNavigate()
 	const [filter, setFilter] = useState('disciplines')
 	const [data, setData] = useState<Term[]>([])
-
-	
+	const [data2, setData2] = useState<TestsByTeacher[]>([])
 
 	async function getData(){
 		const headers = { headers: { Authorization: `Bearer ${auth.token}` }}
 		try {
-			const { data} = await api.tests.getTests(filter, headers)
-			
-			setData(data.map( (term: Term) => ({
-				number: term.number,
-				open:false,
-				disciplines: term.disciplines.map( (discipline: Discipline) => ({
-					name: discipline.name,
+			const { data } = await api.tests.getTests(filter, headers)
+
+			if(filter === 'disciplines'){
+				setData(data.map( (term: Term) => ({
+					number: term.number,
 					open:false,
-					teachers: discipline.teachers.map( (teacher: Teacher) => ({
-						name: teacher.name,
-						tests: teacher.tests.map( (test: Test) => ({
-							name: test.name,
-							category: test.category
+					disciplines: term.disciplines.map( (discipline: DisciplineWithTeacher) => ({
+						name: discipline.name,
+						open:false,
+						teachers: discipline.teachers.map( (teacher: Teacher) => ({
+							name: teacher.name,
+							tests: teacher.tests.map( (test: Test) => ({
+								name: test.name,
+								category: test.category
+							}))
 						}))
 					}))
-				}))
-			})))
+				})))
+			}else{
+				setData2(data.map( (teacher: any) => ({
+					name: teacher.name,
+					open:false,
+					disciplines: teacher.disciplines.map( (discipline: any) => ({
+						tests: discipline.tests.map( (test: Test) => ({
+								name: test.name,
+								category: test.category,
+								discipline: discipline.name
+						}))
+						
+					}))
+				})))
+			}
+			
+			
 		} catch (error: any) {
 			console.log(error.response)
 			if(error.response.status === 401) {
@@ -93,6 +115,12 @@ export const Home: React.FC = () => {
         setData(aux);
     };
 
+	const handleTeacherClick = (i: number) => () => {
+        const aux: any[] = [...data2]
+        aux[i].open = !aux[i].open
+        setData2(aux);
+    };
+
     const handleDisciplineClick = (i: number, j:number) => () => {
         const aux: any[] = [...data]
         aux[i].disciplines[j].open = !aux[i].disciplines[j].open
@@ -117,7 +145,7 @@ export const Home: React.FC = () => {
                             margin="normal"
                             fullWidth
                             id="search"
-                            label={`Pesquise por ${filter === 'disciplines' ? 'disciplina': 'professor'}`}
+                            label={`Pesquise por ${filter === 'disciplines' ? 'disciplina': 'pessoa instrutora'}`}
                             name="search"
                             autoFocus
                         />
@@ -146,46 +174,110 @@ export const Home: React.FC = () => {
                     </Button>
                 </Box>
 
-                <List
-                    sx={{margin: '50px  0', boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.3)', borderRadius: '4px' }}
-                    component="nav"
-                >
-                    {
-                        data.map( (term, i) => 
-                            <Collapse in={true} timeout="auto" unmountOnExit key={i}>
-                                <ListItemButton onClick={handleTermClick(i)}>
-                                    <ListItemText primary={`${term.number}° Período`} />
-                                    {term.open ? <ExpandLess /> : <ExpandMore />}
-                                </ListItemButton>
+				{filter === 'disciplines'
+				?	<List
+						sx={{margin: '50px  0', boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.3)', borderRadius: '4px' }}
+						component="nav"
+					>
+						{
+							data.map( (term, i) => 
+								<Collapse in={true} timeout="auto" unmountOnExit key={i}>
+									<ListItemButton onClick={handleTermClick(i)}>
+										<ListItemText primary={`${term.number}° Período`} />
+										{term.open ? <ExpandLess /> : <ExpandMore />}
+									</ListItemButton>
 
-                                {term.disciplines.map( (discipline: any, j) => 
-                                    <Collapse in={term.open} timeout="auto" unmountOnExit key={`${i}-${j}`}>
-                                        <List component="div" disablePadding>
+									{
+										term.disciplines.length === 0 
+										?	<Collapse in={term.open} timeout="auto" unmountOnExit key={`${i}`}>
+												<List component="div" disablePadding>
+													<ListItemButton sx={{ pl: 8 }}>
+														<ListItemText primary="Não tem nenhuma disciplina para esse período"  ></ListItemText>
+													</ListItemButton>
+												</List>
+											</Collapse>
+										:	term.disciplines.map( (discipline: any, j) => 
+									
+											<Collapse in={term.open} timeout="auto" unmountOnExit key={`${i}-${j}`}>
+												<List component="div" disablePadding>
+	
+													<ListItemButton sx={{ pl: 4 }} onClick={handleDisciplineClick(i, j)}>
+														<ListItemText primary={discipline.name} />
+														{discipline.open ? <ExpandLess /> : <ExpandMore />}
+													</ListItemButton>
+	
+													{discipline.teachers.map( (teacher: Teacher, k: number) => {
+														if(teacher.tests.length === 0) return(
+															<Collapse in={discipline.open} timeout="auto" unmountOnExit key={`${i}-${j}-${k}`}>
+																<List component="div" disablePadding>
+																	<ListItemButton sx={{ pl: 8 }}>
+																		<ListItemText primary="Não tem prova para nenhuma categoria dessa disciplina"  ></ListItemText>
+																	</ListItemButton>
+																</List>
+															</Collapse>
+														)
+														return(
+															teacher.tests.map( (test: Test, l: number) => 
+																<Collapse in={discipline.open} timeout="auto" unmountOnExit key={`${i}-${j}-${l}`}>
+																	<List component="div" disablePadding>
+																		<ListItemButton sx={{ pl: 8 }}>
+																			<ListItemText primary={test.category} secondary={`${test.name} (${teacher.name})`} ></ListItemText>
+																		</ListItemButton>
+																	</List>
+																</Collapse>
+															)
+														)
+													})}   
+												</List>
+											</Collapse>
+										)
+									}
+									
+									
+									
+								</Collapse>
+							)
+						}
+					</List>
+				:	<List
+						sx={{margin: '50px  0', boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.3)', borderRadius: '4px' }}
+						component="nav"
+					>
+						{
+							data2.map( (teacher, i) => 
+								<Collapse in={true} timeout="auto" unmountOnExit key={i}>
+									<ListItemButton onClick={handleTeacherClick(i)}>
+										<ListItemText primary={teacher.name} />
+										{teacher.open ? <ExpandLess /> : <ExpandMore />}
+									</ListItemButton>
 
-                                            <ListItemButton sx={{ pl: 4 }} onClick={handleDisciplineClick(i, j)}>
-                                                <ListItemText primary={discipline.name} />
-                                                {discipline.open ? <ExpandLess /> : <ExpandMore />}
-                                            </ListItemButton>
-
-                                            {discipline.teachers.map( (teacher: Teacher, k: number) => 
-												teacher.tests.map( (test: Test, l: number) => 
-													<Collapse in={discipline.open} timeout="auto" unmountOnExit key={`${i}-${j}-${k}`}>
-														<List component="div" disablePadding>
-															<ListItemButton sx={{ pl: 8 }}>
-																<ListItemText primary={test.category} secondary={`${test.name} (${teacher.name})`} ></ListItemText>
-															</ListItemButton>
-														</List>
-													</Collapse>
-												)
-												
-											)}   
-                                        </List>
-                                    </Collapse>
-                                )}
-                            </Collapse>
-                        )
-                    }
-                </List>
+									{
+										teacher.disciplines.length === 0 
+										?	<Collapse in={teacher.open} timeout="auto" unmountOnExit key={`${i}`}>
+												<List component="div" disablePadding>
+													<ListItemButton sx={{ pl: 8 }}>
+														<ListItemText primary="Não tem nenhuma prova para esse professor"  ></ListItemText>
+													</ListItemButton>
+												</List>
+											</Collapse>
+										:	teacher.disciplines.map( (discipline: any, j) => 
+											<Collapse in={teacher.open} timeout="auto" unmountOnExit key={`${i}-${j}`}>
+												<List component="div" disablePadding>
+													{discipline.tests.map((test: any, k:number) =>
+														<ListItemButton sx={{ pl: 4 }} key={`${i}-${j}-${k}`}>
+															<ListItemText primary={test.category} secondary={`${test.name} (${test.discipline})`}/>
+														</ListItemButton>
+													)}
+												</List>
+											</Collapse>
+											)
+									}
+								</Collapse>
+							)
+						}
+					</List>
+				}
+                
             </Box>
             
         </Container>
