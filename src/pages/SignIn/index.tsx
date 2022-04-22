@@ -42,6 +42,7 @@ export const SignIn: React.FC = () => {
     try {
       const { data } = await api.auth.signIn({ email, password })
       login(data)
+      console.log("a")
       navigate("/");
     } catch (error: any) {
       fireAlert((error.response.data))

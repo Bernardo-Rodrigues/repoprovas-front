@@ -1,7 +1,9 @@
 import  { Box,TextField, Container, IconButton, Button, List, ListItemButton, ListItemText, Collapse }  from '@mui/material';
 import { ExpandLess, ExpandMore, Logout } from '@mui/icons-material'
 import logo from "../../shared/images/Logo.png"
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import useContexts from '../../shared/hooks/useContexts';
+import { useNavigate } from 'react-router-dom';
 
 interface Term {
     name: string;
@@ -62,6 +64,9 @@ const test: Term[] = [
 ]
 
 export const Home: React.FC = () => {
+    const contexts = useContexts()
+  const { auth, logout } = contexts.auth
+  const navigate = useNavigate()
     const [data, setData] = useState<Term[]>(
         test.map( term => ({
             name: term.name,
@@ -73,6 +78,13 @@ export const Home: React.FC = () => {
             }))
         }))
     )
+
+    useEffect(() => {
+        if (!auth) {
+            navigate("/sign-in");
+        }
+        //eslint-disable-next-line
+      }, [])
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -94,12 +106,13 @@ export const Home: React.FC = () => {
         setData(aux);
     };
 
-    const handleClickLogout = () => () => {
-        console.log("opa")
+    const handleClickLogout = () => {
+        logout()
+        navigate("/sign-in");
     };
   
     return(  
-        <Container maxWidth={false} sx={{p:0}} >
+        <Container disableGutters={true} maxWidth={false} sx={{p:0}} >
             <Box sx={{display:'flex', height:'250px', position:"relative", borderBottom:1, borderColor:'#c4c4c4'}}>
                 <Box sx={{flex:1, position:'absolute', top:'50px', left:'60px'}}>
                     <img src={logo} alt="logo"/>
