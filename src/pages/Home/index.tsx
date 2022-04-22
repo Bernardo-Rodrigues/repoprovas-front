@@ -4,87 +4,80 @@ import logo from "../../shared/images/Logo.png"
 import { useEffect, useState } from 'react';
 import useContexts from '../../shared/hooks/useContexts';
 import { useNavigate } from 'react-router-dom';
+import useApi from '../../shared/hooks/useApi';
 
 interface Term {
-    name: string;
+    number: number;
     disciplines: Discipline[];
     open?: boolean;
 }
 
 interface Discipline {
     name: string;
-    tests: string[];
+    teachers: Teacher[];
     open?: boolean;
 }
 
-const test: Term[] = [
-    {
-        name:'Periodo 1',
-        disciplines:[
-            {
-                name:'CSS',
-                tests:[
-                    "p1", "p2"
-                ]
-            },
-            {
-                name:'HTML',
-                tests:[
-                    "p1"
-                ]
-            },
-            {
-                name:'JS',
-                tests:[
-                ]
-            }
-        ]
-    },
-    {
-        name:'Periodo 2',
-        disciplines:[
-            {
-                name:'CSS',
-                tests:[
-                    "p1", "p2"
-                ]
-            },
-            {
-                name:'HTML',
-                tests:[
-                    "p1"
-                ]
-            }
-        ]
-    },
-    {
-        name:'Periodo 3',
-        disciplines:[]
-    }
-]
+interface Teacher {
+    name: string;
+    tests: Test[]
+}
+
+interface Test {
+    name: string;
+	category: string;
+}
 
 export const Home: React.FC = () => {
-    const contexts = useContexts()
-  const { auth, logout } = contexts.auth
-  const navigate = useNavigate()
-    const [data, setData] = useState<Term[]>(
-        test.map( term => ({
-            name: term.name,
-            open:false,
-            disciplines: term.disciplines.map( materia => ({
-                name: materia.name,
-                open:false,
-                tests: materia.tests
-            }))
-        }))
-    )
+	const contexts = useContexts()
+	const api = useApi()
+	const { auth, logout } = contexts.auth
+	const navigate = useNavigate()
+	const [filter, setFilter] = useState('disciplines')
+	const [data, setData] = useState<Term[]>([])
+
+	
+
+	async function getData(){
+		const headers = { headers: { Authorization: `Bearer ${auth.token}` }}
+		try {
+			const { data} = await api.tests.getTests(filter, headers)
+			
+			setData(data.map( (term: Term) => ({
+				number: term.number,
+				open:false,
+				disciplines: term.disciplines.map( (discipline: Discipline) => ({
+					name: discipline.name,
+					open:false,
+					teachers: discipline.teachers.map( (teacher: Teacher) => ({
+						name: teacher.name,
+						tests: teacher.tests.map( (test: Test) => ({
+							name: test.name,
+							category: test.category
+						}))
+					}))
+				}))
+			})))
+		} catch (error: any) {
+			console.log(error.response)
+			if(error.response.status === 401) {
+				logout()
+				navigate('/sign-in')
+			}
+		}
+	}
+
+	useEffect(() => {
+        getData()
+        //eslint-disable-next-line
+    }, [filter])
 
     useEffect(() => {
         if (!auth) {
             navigate("/sign-in");
         }
         //eslint-disable-next-line
-      }, [])
+    }, [])
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -124,7 +117,7 @@ export const Home: React.FC = () => {
                             margin="normal"
                             fullWidth
                             id="search"
-                            label="Pesquise por disciplina"
+                            label={`Pesquise por ${filter === 'disciplines' ? 'disciplina': 'professor'}`}
                             name="search"
                             autoFocus
                         />
@@ -140,11 +133,11 @@ export const Home: React.FC = () => {
 
             <Box sx={{width:'700px', margin: '35px auto 0'}}>
                 <Box sx={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                    <Button sx={{height:'40px'}} variant='outlined'>
+                    <Button sx={{height:'40px'}} variant={filter === 'disciplines' ? 'contained' : 'outlined'} onClick={()=>setFilter('disciplines')}>
                         DISCIPLINAS
                     </Button>
 
-                    <Button sx={{height:'40px'}} variant='outlined'>
+                    <Button sx={{height:'40px'}} variant={filter === 'teachers' ? 'contained' : 'outlined'} onClick={()=>setFilter('teachers')}>
                         PESSOA INSTRUTORA
                     </Button>
 
@@ -154,14 +147,14 @@ export const Home: React.FC = () => {
                 </Box>
 
                 <List
-                    sx={{marginTop: '50px', boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.3)', borderRadius: '4px' }}
+                    sx={{margin: '50px  0', boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.3)', borderRadius: '4px' }}
                     component="nav"
                 >
                     {
                         data.map( (term, i) => 
                             <Collapse in={true} timeout="auto" unmountOnExit key={i}>
                                 <ListItemButton onClick={handleTermClick(i)}>
-                                    <ListItemText primary={term.name} />
+                                    <ListItemText primary={`${term.number}° Período`} />
                                     {term.open ? <ExpandLess /> : <ExpandMore />}
                                 </ListItemButton>
 
@@ -174,15 +167,18 @@ export const Home: React.FC = () => {
                                                 {discipline.open ? <ExpandLess /> : <ExpandMore />}
                                             </ListItemButton>
 
-                                            {discipline.tests.map( (test: string, k: number) => 
-                                                <Collapse in={discipline.open} timeout="auto" unmountOnExit key={`${i}-${j}-${k}`}>
-                                                    <List component="div" disablePadding>
-                                                        <ListItemButton sx={{ pl: 8 }}>
-                                                            <ListItemText primary={test} />
-                                                        </ListItemButton>
-                                                    </List>
-                                                </Collapse>
-                                            )}   
+                                            {discipline.teachers.map( (teacher: Teacher, k: number) => 
+												teacher.tests.map( (test: Test, l: number) => 
+													<Collapse in={discipline.open} timeout="auto" unmountOnExit key={`${i}-${j}-${k}`}>
+														<List component="div" disablePadding>
+															<ListItemButton sx={{ pl: 8 }}>
+																<ListItemText primary={test.category} secondary={`${test.name} (${teacher.name})`} ></ListItemText>
+															</ListItemButton>
+														</List>
+													</Collapse>
+												)
+												
+											)}   
                                         </List>
                                     </Collapse>
                                 )}
