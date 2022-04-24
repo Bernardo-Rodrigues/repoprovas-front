@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import useContexts from '../../shared/hooks/useContexts';
 import GithubLogin from "../../shared/components/GithubLogin"
 import { Form, EmailInput, PasswordInput, FormFooter } from "../../shared/components/FormComponents"
-import FormInterface from '../../interfaces/Form';
+import FormInterface from '../../shared/interfaces/Form';
 import * as styles from "../../shared/style/styles"
 
 export const SignIn: React.FC = () => {
@@ -22,7 +22,6 @@ export const SignIn: React.FC = () => {
 
   useEffect(() => {
     if (auth) navigate("/timeline");
-
     //eslint-disable-next-line
   }, [])
   
