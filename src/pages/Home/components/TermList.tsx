@@ -1,32 +1,13 @@
 import  { List, ListItemButton, ListItemText, Collapse, Accordion, AccordionSummary, Typography, AccordionDetails }  from '@mui/material';
 import { ExpandLess, ExpandMore } from '@mui/icons-material'
 import { Fragment } from "react"
+import Term from "../../../shared/interfaces/Term"
 
 interface Props {
     data: Term[];
-    setData: (value: React.SetStateAction<Term[]>) => void
+    setData: (value: React.SetStateAction<Term[]>) => void;
 }
 
-interface Term {
-    number: number;
-    disciplines: Discipline[];
-}
-
-interface Discipline {
-    name: string;
-    teachers: Teacher[];
-    open?: boolean;
-}
-
-interface Teacher {
-    name: string;
-    tests: Test[]
-}
-
-interface Test {
-    name: string;
-	category: string;
-}
 
 export default function TermList({ data, setData }: Props){
     const handleDisciplineClick = (i: number, j:number) => () => {
