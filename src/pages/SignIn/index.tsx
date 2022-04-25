@@ -29,7 +29,7 @@ export const SignIn: React.FC = () => {
     event.preventDefault();
 
     try {
-      const { data } = await api.auth.signIn(values)
+      const { data } = await api.user.signIn(values)
       login(data)
       navigate("/");
     } catch (error: any) {
