@@ -36,7 +36,7 @@ export default function DisciplineList({ termId }: Props){
         //eslint-disable-next-line
     }, [])
 
-    const handleDisciplineClick = async (i: number, disciplineId: number) => {
+    const handleDisciplineClick = async (i: number) => {
         const aux: any[] = [...disciplineData]
         aux[i].open = !aux[i].open
         setDisciplineData(aux);
@@ -49,7 +49,7 @@ export default function DisciplineList({ termId }: Props){
             {disciplineData.map( (discipline: any, i:number) => 
                 <List component="div" disablePadding key={`${i}`}>
 
-                    <ListItemButton sx={{ pl: 2 }} onClick={() => handleDisciplineClick(i, discipline.id)}>
+                    <ListItemButton sx={{ pl: 2 }} onClick={() => handleDisciplineClick(i)}>
                         <ListItemText primary={discipline.name} />
                         {discipline.open ? <ExpandLess /> : <ExpandMore />}
                     </ListItemButton>
