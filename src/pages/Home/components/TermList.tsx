@@ -1,70 +1,32 @@
-import  { List, ListItemButton, ListItemText, Collapse, Accordion, AccordionSummary, Typography, AccordionDetails }  from '@mui/material';
-import { ExpandLess, ExpandMore } from '@mui/icons-material'
-import { Fragment } from "react"
-import Term from "../../../shared/interfaces/Term"
+import  { Accordion, AccordionSummary, Typography, AccordionDetails }  from '@mui/material';
+import { ExpandMore } from '@mui/icons-material'
+import { Fragment, useState } from "react"
+import DisciplineList from './DisciplineList';
 
 interface Props {
-    data: Term[];
-    setData: (value: React.SetStateAction<Term[]>) => void;
+    data: [];
 }
 
-
-export default function TermList({ data, setData }: Props){
-    const handleDisciplineClick = (i: number, j:number) => () => {
-        const aux: any[] = [...data]
-        aux[i].disciplines[j].open = !aux[i].disciplines[j].open
-        setData(aux);
-    };
+export default function TermList({ data }: Props){
+    const [expanded, setExpanded] = useState(false)
 
     return (
         <Fragment>
-            {data.map( (term, i) => (
-                    <Accordion key={i}>
+            {data.map( (term: any, i) => (
+                <Accordion key={i}>
 
-                        <AccordionSummary expandIcon={<ExpandMore />}>
-                            <Typography>{`${term.number}° Período`}</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
+                    <AccordionSummary expandIcon={<ExpandMore onClick={()=>setExpanded(!expanded)}/>}>
 
-                            {term.disciplines.length === 0 
-                                ?	<Typography sx={{pl:2}}>Não tem nenhuma disciplina nesse período</Typography>
-                                    
-                                :	term.disciplines.map( (discipline: any, j) => 
-                                        <List component="div" disablePadding key={`${i}-${j}`}>
+                        <Typography>{`${term.number}° Período`}</Typography>
 
-                                            <ListItemButton sx={{ pl: 2 }} onClick={handleDisciplineClick(i, j)}>
-                                                <ListItemText primary={discipline.name} />
-                                                {discipline.open ? <ExpandLess /> : <ExpandMore />}
-                                            </ListItemButton>
+                    </AccordionSummary>
+                    <AccordionDetails>
 
-                                            {discipline.categories.length === 0 
-                                                ?	<Collapse in={discipline.open} timeout="auto" unmountOnExit>
-                                                        <Typography sx={{pl:4}}>Não tem prova para nenhuma categoria dessa disciplina</Typography>
-                                                    </Collapse>
-                                                :	<Collapse in={discipline.open} timeout="auto" unmountOnExit key={`${i}-${j}`}>
-                                                        {
-                                                            discipline.categories.map( (category:any, k: number) => (
-                                                                <Fragment key={`${i}-${j}-${k}`}>
-                                                                    <Typography sx={{pl:4}}>{category.name}</Typography>
-                                                                    <List component="div" disablePadding>
-                                                                    {category.tests.map( (test: any, l: number) => 
-                                                                        <ListItemButton sx={{ pl: 4 }} key={`${i}-${j}-${k}-${l}`}>
-                                                                            <ListItemText primary={test.category} secondary={`${test.name} (${test.teacher})`} ></ListItemText>
-                                                                        </ListItemButton>
-                                                                    )}
-                                                                    </List>
-                                                                </Fragment>
-                                                            
-                                                            ))
-                                                        }
-                                                    </Collapse>
-                                            }  
-                                        </List>
-                                )
-                            }
-                        </AccordionDetails>
+                        {expanded && <DisciplineList termId={term.id}/>}
 
-                    </Accordion>
+                    </AccordionDetails>
+
+                </Accordion>
             ))}
         </Fragment>
     )

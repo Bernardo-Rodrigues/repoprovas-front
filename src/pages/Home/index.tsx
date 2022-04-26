@@ -7,26 +7,26 @@ import Header from './components/Header';
 import Menu from "./components/Menu"
 import TermList from "./components/TermList"
 import TeachersList from './components/TeachersList';
-import Term from "../../shared/interfaces/Term"
-import Teacher from "../../shared/interfaces/Teacher"
 
 export const Home: React.FC = () => {
 	const contexts = useContexts()
-	const api = useApi()
 	const { auth, logout } = contexts.auth
+	const api = useApi()
 	const navigate = useNavigate()
 	const [filter, setFilter] = useState('disciplines')
-	const [termsData, setTermsData] = useState<Term[]> ([])
-	const [teachersData, setTeachersData] = useState<Teacher[]>([])
+	const [termsData, setTermsData] = useState<[]> ([])
+	const [teachersData, setTeachersData] = useState<[]>([])
 
 	async function getData(){
 		const headers = { headers: { Authorization: `Bearer ${auth.token}` }}
 		try {
-			const { data } = await api.tests.getTests(filter, headers)
 			if(filter === 'disciplines'){
-				data.forEach( (term:any) => term.disciplines.forEach( (discipline:any) => discipline.open = false ))
+				const { data } = await api.terms.getAll(headers)
 				setTermsData(data)
-			}else setTeachersData(data)
+			}else {
+				const { data } = await api.teachers.getAll(headers)
+				setTeachersData(data)
+			}
 		} catch (error: any) {
 			console.log(error.response)
 			if(error.response.status === 401) {
@@ -35,7 +35,7 @@ export const Home: React.FC = () => {
 			}
 		}
 	}
-
+	
 	useEffect(() => {
         getData()
         //eslint-disable-next-line
@@ -56,7 +56,7 @@ export const Home: React.FC = () => {
 
                 <Menu filter={filter} setFilter={setFilter}/>
 				{filter === 'disciplines'
-				?	<TermList data={termsData} setData={setTermsData}/>
+				?	<TermList data={termsData}/>
 				:	<TeachersList data={teachersData}/>
 				}
                 
