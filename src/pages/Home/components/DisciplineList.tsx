@@ -1,10 +1,13 @@
-import  { List, ListItemButton, ListItemText, Collapse, Typography }  from '@mui/material';
+import  { List, ListItemButton, ListItemText, Collapse, Typography, LinearProgress }  from '@mui/material';
 import { ExpandLess, ExpandMore } from '@mui/icons-material'
 import { Fragment, useEffect, useState } from "react"
 import useContexts from '../../../shared/hooks/useContexts';
 import useApi from '../../../shared/hooks/useApi';
 import { useNavigate } from 'react-router-dom';
 import TestsList from './TestsList';
+import { ThreeDots } from "react-loader-spinner"
+import { textAlign } from '@mui/system';
+import { fireAlert } from '../../../shared/utils/alerts';
 
 interface Props {
     termId: number;
@@ -13,18 +16,22 @@ interface Props {
 export default function DisciplineList({ termId }: Props){
     const contexts = useContexts()
 	const { auth, logout } = contexts.auth
+    const { search } = contexts.search
 	const api = useApi()
     const navigate = useNavigate()
     const [disciplineData, setDisciplineData] = useState<any>([])
+    const [isLoading, setIsLoading] = useState(true)
 
     async function getDisciplines(termId: number){
 		const headers = { headers: { Authorization: `Bearer ${auth.token}` }}
 		try {
-            const { data } = await api.disicplines.getByTerm(termId, headers)
+            const { data } = await api.disicplines.getByTerm(termId, search, headers)
             setDisciplineData(data.map( (discipline:any) => ({...discipline, open: false})))
+            setIsLoading(false)
 		} catch (error: any) {
 			console.log(error.response)
 			if(error.response.status === 401) {
+                await fireAlert("Seção inválida, faça login novamente!")
 				logout()
 				navigate('/sign-in')
 			}
@@ -34,7 +41,7 @@ export default function DisciplineList({ termId }: Props){
     useEffect(()=>{
         getDisciplines(termId)
         //eslint-disable-next-line
-    }, [])
+    }, [search])
 
     const handleDisciplineClick = async (i: number) => {
         const aux: any[] = [...disciplineData]
@@ -42,6 +49,7 @@ export default function DisciplineList({ termId }: Props){
         setDisciplineData(aux);
     };
 
+    if(isLoading) return <LinearProgress />
     if(disciplineData.length === 0) return <Typography sx={{pl:2}}>Não tem nenhuma disciplina nesse período</Typography>
 
     return (
