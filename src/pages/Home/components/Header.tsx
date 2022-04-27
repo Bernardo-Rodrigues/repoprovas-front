@@ -11,15 +11,8 @@ interface Props {
 export default function Header ({ filter }: Props){
     const contexts = useContexts()
     const { logout } = contexts.auth
+    const { setSearch } = contexts.search
     const navigate = useNavigate()
-
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        console.log({
-          search: data.get('search')
-        });
-    };
 
     const handleClickLogout = () => {
         logout()
@@ -34,8 +27,9 @@ export default function Header ({ filter }: Props){
             </Box>
             <Box sx={{flex:1, position:'absolute', bottom:'25px', left:'calc(50% - 228px)'}}>
 
-                <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1, width:'458px' }}>
+                <Box component="form" noValidate sx={{ mt: 1, width:'458px' }}>
                     <TextField
+                        onChange={(e)=> setSearch(e.target.value)}
                         margin="normal"
                         fullWidth
                         id="search"

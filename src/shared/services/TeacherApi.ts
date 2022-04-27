@@ -1,7 +1,7 @@
 import api from "./api"
 
 export default class TeacherApi {
-  getAll(hearders:any) {
-    return api.get(`/teachers`, hearders);
+  getAll(search:string, hearders:any) {
+    return api.get(`/teachers?search=${search}`, hearders);
   }
 }
