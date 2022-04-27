@@ -1,4 +1,4 @@
-import  { LinearProgress, List, ListItemButton, ListItemText, Typography }  from '@mui/material';
+import  { LinearProgress, Link, List, ListItemButton, ListItemText, Typography }  from '@mui/material';
 import { Fragment, useEffect, useState } from "react"
 import useContexts from '../../../shared/hooks/useContexts';
 import useApi from '../../../shared/hooks/useApi';
@@ -44,12 +44,41 @@ export default function TestsList({ disciplineId, teacherId, by }: Props){
         getTests()
         //eslint-disable-next-line
     }, [])
+
+    async function handleTestClick(testId: number){
+        const headers = { headers: { Authorization: `Bearer ${auth.token}` }}
+		try {
+            await api.tests.updateViews(testId, headers)
+            getTests()
+		} catch (error: any) {
+            console.log(error.response)
+			if(error.response.status === 401) {
+                await fireAlert("Seção inválida, faça login novamente!")
+				logout()
+				navigate('/sign-in')
+			}
+		}
+    }
     
     const categoriesHash:any = {}
 
     tests.forEach( (test:any) => {
-        if(!categoriesHash[test.category.name]) categoriesHash[test.category.name] = [{name:test.name, teacher: test.teacherDiscipline.teacher?.name, discipline: test.teacherDiscipline.discipline?.name}]
-        else categoriesHash[test.category.name].push({name:test.name, teacher: test.teacherDiscipline.teacher?.name, discipline: test.teacherDiscipline.discipline?.name})
+        if(!categoriesHash[test.category.name]) categoriesHash[test.category.name] = [{
+            id: test.id,
+            name:test.name, 
+            pdfUrl: test.pdfUrl,
+            views: test.views,
+            teacher: test.teacherDiscipline.teacher?.name, 
+            discipline: test.teacherDiscipline.discipline?.name
+        }]
+        else categoriesHash[test.category.name].push({
+            id: test.id,
+            name:test.name, 
+            pdfUrl: test.pdfUrl,
+            views: test.views,
+            teacher: test.teacherDiscipline.teacher?.name, 
+            discipline: test.teacherDiscipline.discipline?.name
+        })
     }) 
     
     if(isLoading) return <LinearProgress />
@@ -63,7 +92,12 @@ export default function TestsList({ disciplineId, teacherId, by }: Props){
                         <List component="div" disablePadding>
                         {category[1].map( (test: any, j: number) => 
                             <ListItemButton sx={{ pl: 4 }} key={`${i}-${j}`}>
-                                <ListItemText primary={test.category} secondary={`${test.name} (${by === 'discipline' ? test.teacher : test.discipline})`} ></ListItemText>
+                                <Link href={test.pdfUrl} target='_blank' underline='none' onClick={() => handleTestClick(test.id)}>
+                                    <ListItemText 
+                                        primary={test.category} 
+                                        secondary={`${test.name} (${by === 'discipline' ? test.teacher : test.discipline}) - (${test.views} ${test.views === 1 ? 'visualização' : 'visualizações'})`}
+                                    />
+                                </Link>
                             </ListItemButton>
                         )}
                         </List>
