@@ -19,9 +19,11 @@ export const NewTestForm: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    let error
     Object.values(values).forEach( value => {
-      if(!value || value.length === 0) return fireAlert("Preencha todos os campos!")
+      if(!value || value.length === 0) error = true
     })
+    if(error) return fireAlert("Preencha todos os campos!")
     try {
       const headers = { headers: { Authorization: `Bearer ${auth.token}` }}
       await api.tests.postTest(values, headers)
