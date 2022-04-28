@@ -8,9 +8,11 @@ export default function AppRoutes() {
         <Routes>
             <Route path="/sign-up" element={ <SignUp/> } />
             <Route path="/sign-in" element={ <SignIn/> } />
-            <Route path="/" element={ <Home/> } />
+            <Route path="/disciplines" element={ <Home/> } />
+            <Route path="/instructors" element={ <Home/> } />
+            <Route path="/test" element={ <Home/> } />
 
-            <Route path="*" element={ <Navigate to="/"/> } />
+            <Route path="*" element={ <Navigate to="/disciplines"/> } />
         </Routes>
     )
 }

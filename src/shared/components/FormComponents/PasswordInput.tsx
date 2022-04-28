@@ -21,61 +21,28 @@ export default function PasswordInput({values, setValues, confirm}: Props){
         setValues({ ...values, [prop]: event.target.value });
     };
 
-    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
-    };
-
     const handleClickShowPassword = () => {
         setShowPassord(!showPassword);
     };
 
-    if(confirm) return(
-        <FormControl fullWidth variant="outlined">
-            <InputLabel htmlFor="outlined-adornment-confirm-password">Confirme sua senha</InputLabel>
+    return(
+        <FormControl variant="outlined">
+            <InputLabel>
+            {confirm ? 'Confirme sua senha': 'Senha'}
+            </InputLabel>
             <OutlinedInput
-                id="outlined-adornment-confirm-password"
                 type={showPassword ? 'text' : 'password'}
-                value={values.confirmPassword}
-                onChange={handleChange('confirmPassword')}
+                value={confirm ? values.confirmPassword : values.password}
+                onChange={confirm ? handleChange('confirmPassword') : handleChange('password')}
                 endAdornment={
                 <InputAdornment position="end">
-                    <IconButton
-                    aria-label="toggle confirm password visibility"
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    edge="end"
-                    >
+                    <IconButton onClick={handleClickShowPassword}>
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                 </InputAdornment>
                 }
-                label="Confirme sua senha"
+                label={confirm ? "Confirme sua senha" : "Senha"}
             />
         </FormControl>
     )
-
-    return(
-        <FormControl fullWidth variant="outlined">
-            <InputLabel htmlFor="outlined-adornment-password">Senha</InputLabel>
-            <OutlinedInput
-                id="outlined-adornment-password"
-                type={showPassword ? 'text' : 'password'}
-                value={values.password}
-                onChange={handleChange('password')}
-                endAdornment={
-                <InputAdornment position="end">
-                    <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    edge="end"
-                    >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                </InputAdornment>
-                }
-                label="Confirme sua senha"
-            />
-        </FormControl>
-    )    
 }

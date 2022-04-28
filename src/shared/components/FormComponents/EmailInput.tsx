@@ -17,10 +17,9 @@ export default function EmailInput({values, setValues}: Props){
     };
 
     return(
-        <FormControl fullWidth variant="outlined">
-            <InputLabel htmlFor="outlined-adornment-email">Email</InputLabel>
+        <FormControl variant="outlined" >
+            <InputLabel>Email</InputLabel>
             <OutlinedInput
-                id="outlined-adornment-email"
                 type='text'
                 value={values.email}
                 onChange={handleChange('email')}

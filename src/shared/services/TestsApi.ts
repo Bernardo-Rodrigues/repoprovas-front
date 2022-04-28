@@ -12,4 +12,8 @@ export default class TestApi {
   updateViews(id: number | undefined, headers:any) {
     return api.patch(`/tests/${id}/view`, {}, headers);
   }
+
+  postTest(body: any, headers:any) {
+    return api.post(`/tests`, body, headers);
+  }
 }

@@ -13,11 +13,7 @@ export default function FormFooter({ type }: Props){
                 {type === "register" ? "Já possuo cadastro" : "Não possuo cadastro"}
                 </Link>
             </Box>
-            <Button
-                type="submit"
-                variant="contained"
-                sx={{ width:'116px' }}
-            >
+            <Button type="submit" variant="contained"  sx={{ width:'116px' }}>
                 {type === "register" ? "CADASTRAR" : "ENTRAR"}
             </Button>
         </Box>

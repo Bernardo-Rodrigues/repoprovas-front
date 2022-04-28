@@ -5,8 +5,6 @@ import useContexts from '../../../shared/hooks/useContexts';
 import useApi from '../../../shared/hooks/useApi';
 import { useNavigate } from 'react-router-dom';
 import TestsList from './TestsList';
-import { ThreeDots } from "react-loader-spinner"
-import { textAlign } from '@mui/system';
 import { fireAlert } from '../../../shared/utils/alerts';
 
 interface Props {

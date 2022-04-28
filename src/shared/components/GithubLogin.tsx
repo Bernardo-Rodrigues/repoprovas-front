@@ -4,11 +4,7 @@ import  { Box, Button }  from '@mui/material';
 export default function GithubLogin(){
     return(
         <Fragment>
-            <Button
-                fullWidth
-                variant="contained"
-                sx={{ backgroundColor: '#424445', marginTop: '30px' }}
-            >
+            <Button fullWidth variant="contained" sx={{ backgroundColor: '#424445', marginTop: '30px' }}>
                 ENTRAR COM O GITHUB
             </Button>
 
