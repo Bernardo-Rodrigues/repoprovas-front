@@ -31,6 +31,7 @@ export default function PasswordInput({values, setValues, confirm}: Props){
             {confirm ? 'Confirme sua senha': 'Senha'}
             </InputLabel>
             <OutlinedInput
+                id={confirm ? 'confirm-password' : 'password'}
                 type={showPassword ? 'text' : 'password'}
                 value={confirm ? values.confirmPassword : values.password}
                 onChange={confirm ? handleChange('confirmPassword') : handleChange('password')}

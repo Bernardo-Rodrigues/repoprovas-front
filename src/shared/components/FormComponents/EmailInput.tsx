@@ -20,6 +20,7 @@ export default function EmailInput({values, setValues}: Props){
         <FormControl variant="outlined" >
             <InputLabel>Email</InputLabel>
             <OutlinedInput
+                id='email'
                 type='text'
                 value={values.email}
                 onChange={handleChange('email')}
