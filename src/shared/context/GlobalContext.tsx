@@ -1,3 +1,4 @@
+import AlertContext from "./AlertContext"
 import AuthProvider from "./AuthContext"
 import SearchProvider from "./SearchContext"
 
@@ -9,7 +10,9 @@ export default function GlobalProvider({children}: Props){
     return (
         <AuthProvider>
             <SearchProvider>
-                {children}
+                <AlertContext>
+                    {children}
+                </AlertContext>
             </SearchProvider>
         </AuthProvider>
     )
