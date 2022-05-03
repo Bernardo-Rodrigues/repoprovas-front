@@ -10,11 +10,12 @@ interface Form {
 
 interface Props {
     values: Form,
-    setValues: (value: React.SetStateAction<Form>) => void
+    setValues: (value: React.SetStateAction<Form>) => void,
+    passwordError?: boolean,
     confirm?: boolean
 }
 
-export default function PasswordInput({values, setValues, confirm}: Props){
+export default function PasswordInput({values, setValues, confirm, passwordError}: Props){
     const [ showPassword, setShowPassord ] = useState(false)
 
     const handleChange = (prop: keyof Form) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,6 +33,7 @@ export default function PasswordInput({values, setValues, confirm}: Props){
             </InputLabel>
             <OutlinedInput
                 id={confirm ? 'confirm-password' : 'password'}
+                error={passwordError}
                 type={showPassword ? 'text' : 'password'}
                 value={confirm ? values.confirmPassword : values.password}
                 onChange={confirm ? handleChange('confirmPassword') : handleChange('password')}

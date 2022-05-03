@@ -3,8 +3,7 @@ import { Fragment, useEffect, useState } from "react"
 import useContexts from '../../../shared/hooks/useContexts';
 import useApi from '../../../shared/hooks/useApi';
 import { useNavigate } from 'react-router-dom';
-import { fireAlert } from '../../../shared/utils/alerts';
-
+import handleRequestError from '../../../shared/utils/handleRequestError';
 interface Props {
     disciplineId?: number;
     teacherId?: number;
@@ -14,8 +13,7 @@ interface Props {
 export default function TestsList({ disciplineId, teacherId, by }: Props){
     const contexts = useContexts()
 	const api = useApi()
-	const { auth, logout } = contexts.auth
-    const navigate = useNavigate()
+	const { auth } = contexts.auth
     const [tests, setTests] = useState<any>([])
     const [isLoading, setIsLoading] = useState(true)
     
@@ -31,12 +29,7 @@ export default function TestsList({ disciplineId, teacherId, by }: Props){
             }
             setIsLoading(false)
 		} catch (error: any) {
-            console.log(error.response)
-			if(error.response.status === 401) {
-                await fireAlert("Seção inválida, faça login novamente!")
-				logout()
-				navigate('/sign-in')
-			}
+            handleRequestError(error)
 		}
 	}
     
@@ -51,12 +44,7 @@ export default function TestsList({ disciplineId, teacherId, by }: Props){
             await api.tests.updateViews(testId, headers)
             getTests()
 		} catch (error: any) {
-            console.log(error.response)
-			if(error.response.status === 401) {
-                await fireAlert("Seção inválida, faça login novamente!")
-				logout()
-				navigate('/sign-in')
-			}
+            handleRequestError(error)
 		}
     }
     

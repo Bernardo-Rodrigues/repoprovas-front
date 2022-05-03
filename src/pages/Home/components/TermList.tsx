@@ -6,13 +6,12 @@ import useContexts from '../../../shared/hooks/useContexts';
 import useApi from '../../../shared/hooks/useApi';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/system';
-import { fireAlert } from '../../../shared/utils/alerts';
+import handleRequestError from '../../../shared/utils/handleRequestError';
 
 export default function TermList(){
     const contexts = useContexts()
-	const { auth, logout } = contexts.auth
+	const { auth } = contexts.auth
 	const api = useApi()
-    const navigate = useNavigate()
     const [termsData, setTermsData] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(true)
 
@@ -23,12 +22,7 @@ export default function TermList(){
             setTermsData(data.map( (term:any) => ({...term, open: false})))
             setIsLoading(false)
 		} catch (error: any) {
-			console.log(error.response)
-			if(error.response.status === 401) {
-                await fireAlert("Seção inválida, faça login novamente!")
-				logout()
-				navigate('/sign-in')
-			}
+			handleRequestError(error)
 		}
 	}
 

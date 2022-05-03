@@ -8,23 +8,25 @@ import GithubLogin from "../../shared/components/GithubLogin"
 import { Form, EmailInput, PasswordInput, FormFooter } from "../../shared/components/FormComponents"
 import FormInterface from '../../shared/interfaces/Form';
 import * as styles from "../../shared/style/styles"
+import useContexts from '../../shared/hooks/useContexts';
 
 export const SignUp: React.FC = () => {
   const api = useApi()
   const navigate = useNavigate()
-  const [values, setValues] = useState<FormInterface>({
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
+  const [values, setValues] = useState<FormInterface>({ email: '', password: '', confirmPassword: '' });
+  const [passwordError, setPasswordError] = useState(false);
+  const contexts = useContexts()
+  const { setMessage } = contexts.alert
   
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     const { email, password, confirmPassword } = values
     event.preventDefault();
     
     if(password !== confirmPassword) {
-      return await fireAlert("Passwords must be the same")
-    }
+      setMessage({ type: "error", text: "As senhas precisam coincidir" });
+      setPasswordError(true)
+      return
+    }else setPasswordError(false)
 
     try {
       await api.user.signUp({ email, password })
@@ -45,8 +47,8 @@ export const SignUp: React.FC = () => {
           <Form handleSubmit={handleSubmit}>
 
             <EmailInput values={values} setValues={setValues}/>
-            <PasswordInput values={values} setValues={setValues}/>
-            <PasswordInput values={values} setValues={setValues} confirm={true}/>
+            <PasswordInput passwordError={passwordError} values={values} setValues={setValues}/>
+            <PasswordInput passwordError={passwordError} values={values} setValues={setValues} confirm={true}/>
             <FormFooter type={"register"}/>
             
           </Form>

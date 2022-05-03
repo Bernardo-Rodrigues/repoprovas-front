@@ -3,9 +3,8 @@ import { ExpandLess, ExpandMore } from '@mui/icons-material'
 import { Fragment, useEffect, useState } from "react"
 import useContexts from '../../../shared/hooks/useContexts';
 import useApi from '../../../shared/hooks/useApi';
-import { useNavigate } from 'react-router-dom';
 import TestsList from './TestsList';
-import { fireAlert } from '../../../shared/utils/alerts';
+import handleRequestError from '../../../shared/utils/handleRequestError';
 
 interface Props {
     termId: number;
@@ -13,10 +12,9 @@ interface Props {
 
 export default function DisciplineList({ termId }: Props){
     const contexts = useContexts()
-	const { auth, logout } = contexts.auth
+	const { auth } = contexts.auth
     const { search } = contexts.search
 	const api = useApi()
-    const navigate = useNavigate()
     const [disciplineData, setDisciplineData] = useState<any>([])
     const [isLoading, setIsLoading] = useState(true)
 
@@ -27,12 +25,7 @@ export default function DisciplineList({ termId }: Props){
             setDisciplineData(data.map( (discipline:any) => ({...discipline, open: false})))
             setIsLoading(false)
 		} catch (error: any) {
-			console.log(error.response)
-			if(error.response.status === 401) {
-                await fireAlert("Seção inválida, faça login novamente!")
-				logout()
-				navigate('/sign-in')
-			}
+			handleRequestError(error)
 		}
 	}
     

@@ -19,7 +19,7 @@ export default class TestApi {
     for (let key in body) {
       formData.append(key, body[key]);
     }
-
+    
     return api.post(`/tests`, formData, headers);
   }
 }

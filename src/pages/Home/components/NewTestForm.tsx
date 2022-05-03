@@ -1,15 +1,17 @@
 import { Autocomplete, Button, TextField } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form } from "../../../shared/components/FormComponents";
 import useApi from "../../../shared/hooks/useApi";
 import useContexts from "../../../shared/hooks/useContexts";
 import Test from "../../../shared/interfaces/Test";
 import { fireAlert } from "../../../shared/utils/alerts";
+import handleRequestError from "../../../shared/utils/handleRequestError"
 
 export const NewTestForm: React.FC = () => {
   const contexts = useContexts()
-	const { auth, logout } = contexts.auth
+	const { auth } = contexts.auth
+  const { setMessage } = contexts.alert
   const [disciplineData, setDisciplineData] = useState<any>([])
   const [categoriesData, setCategoriesData] = useState<any>([])
   const [teachersData, setTeachersData] = useState<any>([])
@@ -23,11 +25,14 @@ export const NewTestForm: React.FC = () => {
     Object.values(values).forEach( value => {
       if(!value || value.length === 0) error = true
     })
-    if(error) return fireAlert("Preencha todos os campos!")
+    if(error) {
+      setMessage({ type: "error", text: "Preencha todos os campos" }); 
+      return;
+    }
     try {
       const headers = { headers: { Authorization: `Bearer ${auth.token}` }}
       await api.tests.postTest(values, headers)
-      await fireAlert("Prova adicionada com sucesso!")
+      setMessage({ type: "success", text: "Prova adicionada com sucesso!" });
       navigate('/instructors')
     } catch (error: any) {
       fireAlert((error.response.data))
@@ -46,12 +51,7 @@ export const NewTestForm: React.FC = () => {
       const { data } = await api.disicplines.getAll(headers)
       setDisciplineData(data.map( (discipline: any) => discipline.name))
     } catch (error: any) {
-      console.log(error.response)
-      if(error.response.status === 401) {
-        await fireAlert("Seção inválida, faça login novamente!")
-        logout()
-        navigate('/sign-in')
-      }
+      handleRequestError(error)
     }
   }
 
@@ -61,12 +61,7 @@ export const NewTestForm: React.FC = () => {
       const { data } = await api.categories.getAll(headers)
       setCategoriesData(data.map( (category: any) => category.name))
     } catch (error: any) {
-      console.log(error.response)
-      if(error.response.status === 401) {
-        await fireAlert("Seção inválida, faça login novamente!")
-        logout()
-        navigate('/sign-in')
-      }
+      handleRequestError(error)
     }
   }
 
@@ -76,12 +71,7 @@ export const NewTestForm: React.FC = () => {
       const { data: discipline } = await api.teachers.getByDiscipline(values.discipline, headers)
       setTeachersData(discipline.teachersDisciplines.map( (teacherDiscipline: any) => teacherDiscipline.teacher.name))
 		} catch (error: any) {
-			console.log(error.response)
-			if(error.response.status === 401) {
-        await fireAlert("Seção inválida, faça login novamente!")
-				logout()
-				navigate('/sign-in')
-			}
+			handleRequestError(error)
 		}
 	}
     
@@ -90,10 +80,11 @@ export const NewTestForm: React.FC = () => {
       getCategories()
       //eslint-disable-next-line
   }, [])
+
   useEffect(()=>{
     if(values.discipline?.length > 0) getTeachersByDiscipline()
     //eslint-disable-next-line
-}, [values.discipline])
+  }, [values.discipline])
 
   return(
       <Form handleSubmit={handleSubmit}>

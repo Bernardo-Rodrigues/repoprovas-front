@@ -4,16 +4,14 @@ import { Fragment, useEffect, useState } from "react"
 import TestsList from './TestsList';
 import useContexts from '../../../shared/hooks/useContexts';
 import useApi from '../../../shared/hooks/useApi';
-import { useNavigate } from 'react-router';
 import { Box } from '@mui/system';
-import { fireAlert } from '../../../shared/utils/alerts';
+import handleRequestError from '../../../shared/utils/handleRequestError';
 
 export default function TeachersList(){
     const contexts = useContexts()
-	const { auth, logout } = contexts.auth
+	const { auth } = contexts.auth
     const { search } = contexts.search
 	const api = useApi()
-    const navigate = useNavigate()
     const [teacherData, setTeacherData] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(true)
 
@@ -24,12 +22,7 @@ export default function TeachersList(){
             setTeacherData(data.map( (teacher:any) => ({...teacher, open: false})))
             setIsLoading(false)
 		} catch (error: any) {
-			console.log(error.response)
-			if(error.response.status === 401) {
-                await fireAlert("Seção inválida, faça login novamente!")
-				logout()
-				navigate('/sign-in')
-			}
+			handleRequestError(error)
 		}
 	}
 

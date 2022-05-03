@@ -21,7 +21,7 @@ export default function EmailInput({values, setValues}: Props){
             <InputLabel>Email</InputLabel>
             <OutlinedInput
                 id='email'
-                type='text'
+                type='email'
                 value={values.email}
                 onChange={handleChange('email')}
                 label="Email"
