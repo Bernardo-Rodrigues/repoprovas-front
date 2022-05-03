@@ -14,6 +14,12 @@ export default class TestApi {
   }
 
   postTest(body: any, headers:any) {
-    return api.post(`/tests`, body, headers);
+    const formData = new FormData();
+
+    for (let key in body) {
+      formData.append(key, body[key]);
+    }
+
+    return api.post(`/tests`, formData, headers);
   }
 }

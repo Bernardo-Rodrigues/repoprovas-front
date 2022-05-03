@@ -1,5 +1,5 @@
 import { Autocomplete, Button, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form } from "../../../shared/components/FormComponents";
 import useApi from "../../../shared/hooks/useApi";
@@ -15,8 +15,8 @@ export const NewTestForm: React.FC = () => {
   const [teachersData, setTeachersData] = useState<any>([])
   const api = useApi()
   const navigate = useNavigate()
-  const [values, setValues] = useState<Test>({ name: '', pdfUrl: '', category: '', discipline:'', teacher:'' });
-
+  const [values, setValues] = useState<Test>({ name: '', pdf: '', category: '', discipline:'', teacher:'' });
+  
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     let error
@@ -34,7 +34,8 @@ export const NewTestForm: React.FC = () => {
     }
   }
 
-  const handleChange = (key: keyof Test, value?: string | null) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (key: keyof Test, value?: any | null) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    if(key === "pdf" && event.target.files !== null) value = event.target.files[0]
     if(!value) value = event.target.value
     setValues({ ...values, [key]: value });
   };
@@ -72,7 +73,7 @@ export const NewTestForm: React.FC = () => {
   async function getTeachersByDiscipline(){
 		const headers = { headers: { Authorization: `Bearer ${auth.token}` }}
 		try {
-      const { data: [discipline] } = await api.teachers.getByDiscipline(values.discipline, headers)
+      const { data: discipline } = await api.teachers.getByDiscipline(values.discipline, headers)
       setTeachersData(discipline.teachersDisciplines.map( (teacherDiscipline: any) => teacherDiscipline.teacher.name))
 		} catch (error: any) {
 			console.log(error.response)
@@ -97,7 +98,7 @@ export const NewTestForm: React.FC = () => {
   return(
       <Form handleSubmit={handleSubmit}>
         <TextField label="Título da prova" variant="outlined" onChange={handleChange('name')}/>
-        <TextField label="PDF da prova" variant="outlined" onChange={handleChange('pdfUrl')}/>
+        <TextField type="file" variant="outlined" onChange={handleChange('pdf')}/>
         <Autocomplete
           options={categoriesData}
           renderInput={(params) => <TextField {...params} label="Categoria" />}

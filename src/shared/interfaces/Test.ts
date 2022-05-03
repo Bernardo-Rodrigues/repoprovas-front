@@ -3,5 +3,5 @@ export default interface Test {
 	discipline: string;
 	teacher: string;
 	category: string;
-	pdfUrl: string;
+	pdf: any;
 }

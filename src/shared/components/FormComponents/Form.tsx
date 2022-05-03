@@ -7,7 +7,7 @@ interface Props {
 
 export default function Form({ children, handleSubmit }: Props){
     return(
-        <Box component="form" onSubmit={handleSubmit} sx={{ display:'flex', flexDirection:'column', gap:'20px', marginTop:'25px' }}>
+        <Box component="form" onSubmit={handleSubmit} encType="multipart/form-data" sx={{ display:'flex', flexDirection:'column', gap:'20px', marginTop:'25px' }}>
             {children}
         </Box>
     )
