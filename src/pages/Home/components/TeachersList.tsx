@@ -6,14 +6,16 @@ import useContexts from '../../../shared/hooks/useContexts';
 import useApi from '../../../shared/hooks/useApi';
 import { Box } from '@mui/system';
 import handleRequestError from '../../../shared/utils/handleRequestError';
+import { useNavigate } from 'react-router';
 
 export default function TeachersList(){
     const contexts = useContexts()
-	const { auth } = contexts.auth
+	const { auth, logout } = contexts.auth
     const { search } = contexts.search
 	const api = useApi()
     const [teacherData, setTeacherData] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(true)
+    const navigate = useNavigate()
 
     async function getTeachers(){
 		const headers = { headers: { Authorization: `Bearer ${auth.token}` }}
@@ -22,7 +24,7 @@ export default function TeachersList(){
             setTeacherData(data.map( (teacher:any) => ({...teacher, open: false})))
             setIsLoading(false)
 		} catch (error: any) {
-			handleRequestError(error)
+			handleRequestError(error, logout, navigate)
 		}
 	}
 

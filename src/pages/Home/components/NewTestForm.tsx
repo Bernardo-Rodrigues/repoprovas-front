@@ -10,7 +10,7 @@ import handleRequestError from "../../../shared/utils/handleRequestError"
 
 export const NewTestForm: React.FC = () => {
   const contexts = useContexts()
-	const { auth } = contexts.auth
+	const { auth, logout } = contexts.auth
   const { setMessage } = contexts.alert
   const [disciplineData, setDisciplineData] = useState<any>([])
   const [categoriesData, setCategoriesData] = useState<any>([])
@@ -51,7 +51,7 @@ export const NewTestForm: React.FC = () => {
       const { data } = await api.disicplines.getAll(headers)
       setDisciplineData(data.map( (discipline: any) => discipline.name))
     } catch (error: any) {
-      handleRequestError(error)
+      handleRequestError(error, logout, navigate)
     }
   }
 
@@ -61,7 +61,7 @@ export const NewTestForm: React.FC = () => {
       const { data } = await api.categories.getAll(headers)
       setCategoriesData(data.map( (category: any) => category.name))
     } catch (error: any) {
-      handleRequestError(error)
+      handleRequestError(error, logout, navigate)
     }
   }
 
@@ -71,7 +71,7 @@ export const NewTestForm: React.FC = () => {
       const { data: discipline } = await api.teachers.getByDiscipline(values.discipline, headers)
       setTeachersData(discipline.teachersDisciplines.map( (teacherDiscipline: any) => teacherDiscipline.teacher.name))
 		} catch (error: any) {
-			handleRequestError(error)
+			handleRequestError(error, logout, navigate)
 		}
 	}
     

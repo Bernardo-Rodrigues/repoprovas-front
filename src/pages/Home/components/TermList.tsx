@@ -10,10 +10,11 @@ import handleRequestError from '../../../shared/utils/handleRequestError';
 
 export default function TermList(){
     const contexts = useContexts()
-	const { auth } = contexts.auth
+	const { auth, logout } = contexts.auth
 	const api = useApi()
     const [termsData, setTermsData] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(true)
+    const navigate = useNavigate()
 
     async function getTerms(){
 		const headers = { headers: { Authorization: `Bearer ${auth.token}` }}
@@ -22,7 +23,7 @@ export default function TermList(){
             setTermsData(data.map( (term:any) => ({...term, open: false})))
             setIsLoading(false)
 		} catch (error: any) {
-			handleRequestError(error)
+			handleRequestError(error, logout, navigate)
 		}
 	}
 

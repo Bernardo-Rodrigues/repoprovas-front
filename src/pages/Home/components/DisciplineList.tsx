@@ -5,6 +5,7 @@ import useContexts from '../../../shared/hooks/useContexts';
 import useApi from '../../../shared/hooks/useApi';
 import TestsList from './TestsList';
 import handleRequestError from '../../../shared/utils/handleRequestError';
+import { useNavigate } from 'react-router';
 
 interface Props {
     termId: number;
@@ -12,11 +13,12 @@ interface Props {
 
 export default function DisciplineList({ termId }: Props){
     const contexts = useContexts()
-	const { auth } = contexts.auth
+	const { auth, logout } = contexts.auth
     const { search } = contexts.search
 	const api = useApi()
     const [disciplineData, setDisciplineData] = useState<any>([])
     const [isLoading, setIsLoading] = useState(true)
+    const navigate = useNavigate()
 
     async function getDisciplines(termId: number){
 		const headers = { headers: { Authorization: `Bearer ${auth.token}` }}
@@ -25,7 +27,7 @@ export default function DisciplineList({ termId }: Props){
             setDisciplineData(data.map( (discipline:any) => ({...discipline, open: false})))
             setIsLoading(false)
 		} catch (error: any) {
-			handleRequestError(error)
+			handleRequestError(error, logout, navigate)
 		}
 	}
     

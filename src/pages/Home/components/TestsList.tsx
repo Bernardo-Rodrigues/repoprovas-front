@@ -13,9 +13,10 @@ interface Props {
 export default function TestsList({ disciplineId, teacherId, by }: Props){
     const contexts = useContexts()
 	const api = useApi()
-	const { auth } = contexts.auth
+	const { auth, logout } = contexts.auth
     const [tests, setTests] = useState<any>([])
     const [isLoading, setIsLoading] = useState(true)
+    const navigate = useNavigate()
     
     async function getTests(){
         const headers = { headers: { Authorization: `Bearer ${auth.token}` }}
@@ -29,7 +30,7 @@ export default function TestsList({ disciplineId, teacherId, by }: Props){
             }
             setIsLoading(false)
 		} catch (error: any) {
-            handleRequestError(error)
+            handleRequestError(error, logout, navigate)
 		}
 	}
     
@@ -44,7 +45,7 @@ export default function TestsList({ disciplineId, teacherId, by }: Props){
             await api.tests.updateViews(testId, headers)
             getTests()
 		} catch (error: any) {
-            handleRequestError(error)
+            handleRequestError(error, logout, navigate)
 		}
     }
     
