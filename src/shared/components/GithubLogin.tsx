@@ -15,4 +15,4 @@ export default function GithubLogin(){
             </Box>
         </Fragment>
     )
-}
+} 
